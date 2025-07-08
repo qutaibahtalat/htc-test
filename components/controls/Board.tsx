@@ -25,7 +25,7 @@ const TOTAL_SCALES = 27;
 const ScalesAndAvatars = () => {
   const { avatars, setAvatars } = useGlobals();
   const [scalingFactorByWidth, setScalingFactorByWidth] = useState(1);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  
   const tallestAvatarHeight = Math.max(
     ...avatars.map((avatar) => avatar.height),
     180
@@ -96,7 +96,7 @@ const ScalesAndAvatars = () => {
           as="div"
           values={avatars}
           onReorder={setAvatars}
-          className="avatarsContainer absolute left-1/2 -translate-x-1/2 w-full max-w-[calc(100%-100px)] overflow-x-scroll h-[calc(100%-40px)] flex items-end justify-center gap-1 z-[20] empty:hidden bottom-0 pb-[18px]"
+          className="avatarsContainer absolute left-1/2 -translate-x-1/2 w-full max-w-[calc(100%-100px)] overflow-x-scroll h-[calc(100%-40px)] flex items-end justify-center gap-1 z-[20] empty:hidden bottom-0 pb-[18px] scrollbar-thumb-rounded scrollbar scrollbar-thumb-gray-400 scrollbar-track-gray-200" style={{ scrollbarWidth: 'auto', scrollbarColor: '#a0aec0 #edf2f7' }}
         >
           {avatars.map((avatar) => (
             <Avatar key={avatar.id} avatar={avatar} boardHeight={height} />
@@ -115,7 +115,7 @@ const Avatar = ({
   boardHeight: number;
 }) => {
   const ftIn = cmToFtAndInch(avatar.height);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  
   // All avatars follow the same chart scale on mobile, regardless of height
   const height =
     (avatar.height / (boardHeight - boardHeight / TOTAL_SCALES - 24)) *
@@ -129,7 +129,7 @@ const Avatar = ({
       className="relative min-w-fit order-none touch-pan-y"
       style={{
         height: `${height}%`,
-        ...(isMobile && { translateY: "none!important" }),
+        
       }}
     >
       <div
@@ -193,7 +193,7 @@ const Avatar = ({
 // --- USER-PROVIDED MOBILE COMPONENTS END ---
 
   const { avatars, setAvatars } = useGlobals();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  
   const chartRef = useRef<HTMLDivElement>(null);
   const avatarsRef = useRef<HTMLDivElement>(null);
   const [compression, setCompression] = useState(1);
@@ -203,7 +203,7 @@ const Avatar = ({
   const rowHeight = boardHeight / TOTAL_SCALES;
 
   useEffect(() => {
-    if (!isMobile || !chartRef.current || !avatarsRef.current) return;
+    if (!chartRef.current || !avatarsRef.current) return;
 
     let animationId: number;
     const checkOverflow = () => {
@@ -234,37 +234,16 @@ const Avatar = ({
 
     animationId = requestAnimationFrame(checkOverflow);
     return () => cancelAnimationFrame(animationId);
-  }, [avatars.length, isMobile, compression]);
+  }, [avatars.length, compression]);
 
   return (
     <div className="relative w-full h-full">
-      <HeightChart ref={chartRef} rowHeight={rowHeight} />
+      {/* <HeightChart ref={chartRef} rowHeight={rowHeight} /> */}
       
-      {isMobile ? (
-        // --- USER-PROVIDED MOBILE CODE START ---
-        <div className="relative w-full h-[calc(100%-80px)] min-h-[500px] bg-gray-100 rounded-xl p-2 border border-gray-200 overflow-hidden">
-          <ScalesAndAvatars />
-        </div>
-        // --- USER-PROVIDED MOBILE CODE END ---
-      ) : (
-        <div className="absolute top-0 left-0 w-full h-full">
-          <Reorder.Group
-            axis="x"
-            values={avatars}
-            onReorder={setAvatars}
-            className="absolute left-1/2 -translate-x-1/2 w-full max-w-[calc(100%-100px)] overflow-x-auto h-full flex items-end justify-center gap-2 bottom-0 pb-4"
-          >
-            {avatars.map((avatar) => (
-              <DesktopAvatar
-                key={avatar.id}
-                avatar={avatar}
-                boardHeight={boardHeight}
-                isMobile={isMobile}
-              />
-            ))}
-          </Reorder.Group>
-        </div>
-      )}
+    
+      <div className="relative w-full h-[calc(100%-80px)] min-h-[500px] bg-gray-100 rounded-xl p-2 border border-gray-200 overflow-hidden">
+        <ScalesAndAvatars />
+      </div>
     </div>
   );
 }
@@ -343,83 +322,7 @@ function MobileAvatar({
   );
 }
 
-// Desktop Avatar Component
-function DesktopAvatar({
-  avatar,
-  boardHeight,
-  isMobile,
-}: {
-  avatar: AvatarType;
-  boardHeight: number;
-  isMobile: boolean;
-}) {
-  const { avatars, removeAvatar, setSelectedAvatar, setSelectedScreen } =
-    useGlobals();
 
-  const height = Number(avatar.height);
-  const ftIn = cmToFtAndInch(height);
-  const isTall = isMobile && height > 122;
-  const heightMultiplier = isTall ? 1.25 : 1;
-  const visualHeight = ((height / boardHeight) * 100) * heightMultiplier;
-
-  return (
-    <motion.div
-      layout
-      animate={{ height: `${visualHeight}%` }}
-      transition={COMPRESSION_SPRING}
-      className="relative min-w-fit"
-    >
-      <Reorder.Item value={avatar} className="h-full">
-        <div
-          className={`absolute left-0 w-full flex flex-col items-center text-[10px] ${
-            avatar.weight ? "-top-[92px]" : "-top-[78px]"
-          }`}
-        >
-          <div className="bg-white border border-gray-200 rounded-md flex items-center">
-            {avatar.type === ItemType.PERSON && (
-              <BiSolidEdit
-                size={30}
-                className="cursor-pointer p-2 border-r border-gray-200"
-                onClick={() => {
-                  setSelectedAvatar(avatar.id);
-                  setSelectedScreen("Edit Persons");
-                }}
-              />
-            )}
-            <IoIosCloseCircleOutline
-              size={30}
-              className="cursor-pointer p-2"
-              onClick={() => {
-                removeAvatar(avatar.id);
-                if (avatars.length === 0) {
-                  setSelectedScreen("Add Person");
-                }
-              }}
-            />
-          </div>
-          <div className="font-semibold truncate">{avatar.name}</div>
-          <div>{height.toFixed(1)} cm</div>
-          {avatar.weight && <div>{avatar.weight} kg</div>}
-          <div>{`${ftIn.ft}ft ${ftIn.in}in`}</div>
-          <hr className="w-full border-gray-500" />
-        </div>
-
-        {avatar.type === "person" ? (
-          <div className="h-full w-fit min-w-fit">
-            <SvgInline url={avatar.avatar} fill={avatar.color} />
-          </div>
-        ) : (
-          <img
-            src={avatar.avatar}
-            alt={avatar.name}
-            className="h-full w-fit min-w-fit"
-            draggable={false}
-          />
-        )}
-      </Reorder.Item>
-    </motion.div>
-  );
-}
 
 // Shared Components
 const HeightChart = React.memo(React.forwardRef(function HeightChart(
