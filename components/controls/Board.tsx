@@ -23,14 +23,14 @@ export default function Board() {
 const TOTAL_SCALES = 27;
 
 const ScalesAndAvatars = () => {
-  const { avatars, setAvatars } = useGlobals();
+  const { avatars, setAvatars, zoomLevel } = useGlobals();
   const [scalingFactorByWidth, setScalingFactorByWidth] = useState(1);
   
   const tallestAvatarHeight = Math.max(
     ...avatars.map((avatar) => avatar.height),
     180
   );
-  const height = tallestAvatarHeight * SCALING_FACTOR * scalingFactorByWidth;
+  const height = tallestAvatarHeight * SCALING_FACTOR * scalingFactorByWidth * zoomLevel;
   const delta = height / TOTAL_SCALES;
 
   const boardRef = useRef<HTMLDivElement>(null);
@@ -192,14 +192,14 @@ const Avatar = ({
 };
 // --- USER-PROVIDED MOBILE COMPONENTS END ---
 
-  const { avatars, setAvatars } = useGlobals();
+  const { avatars, setAvatars, zoomLevel, setZoomLevel } = useGlobals();
   
   const chartRef = useRef<HTMLDivElement>(null);
   const avatarsRef = useRef<HTMLDivElement>(null);
   const [compression, setCompression] = useState(1);
 
   const tallest = Math.max(...avatars.map((a) => a.height), 180);
-  const boardHeight = tallest * SCALING_FACTOR * compression;
+  const boardHeight = tallest * SCALING_FACTOR * compression * zoomLevel;
   const rowHeight = boardHeight / TOTAL_SCALES;
 
   useEffect(() => {
@@ -236,13 +236,54 @@ const Avatar = ({
     return () => cancelAnimationFrame(animationId);
   }, [avatars.length, compression]);
 
+  const onZoomIn = () => setZoomLevel(Math.min(3, zoomLevel + 0.1));
+  const onZoomOut = () => setZoomLevel(Math.max(0.5, zoomLevel - 0.1));
+  const onSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setZoomLevel(parseFloat(e.target.value));
+  };
+
   return (
-    <div className="relative w-full h-full">
-      {/* <HeightChart ref={chartRef} rowHeight={rowHeight} /> */}
-      
-    
+    <div className="relative w-full h-full flex flex-col">
+
+
+      {/* Board */}
       <div className="relative w-full h-[calc(100%-80px)] min-h-[500px] bg-gray-100 rounded-xl p-2 border border-gray-200 overflow-hidden">
         <ScalesAndAvatars />
+      </div>
+
+      {/* Mobile Zoom Controls */}
+      <div className="md:hidden flex items-center justify-center gap-4 mt-4 p-2 bg-white rounded-lg shadow-sm border border-gray-200">
+        <button 
+          onClick={onZoomOut}
+          className="p-2 rounded-md bg-[#ff832d] text-white hover:bg-[#e67325]"
+          aria-label="Zoom out"
+        >
+          -
+        </button>
+        
+        <div className="flex-1">
+          <input
+            type="range"
+            min="0.5"
+            max="3"
+            step="0.1"
+            value={zoomLevel}
+            onChange={onSliderChange}
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#ff832d]"
+          />
+        </div>
+        
+        <button 
+          onClick={onZoomIn}
+          className="p-2 rounded-md bg-[#ff832d] text-white hover:bg-[#e67325]"
+          aria-label="Zoom in"
+        >
+          +
+        </button>
+        
+        <div className="text-sm font-medium text-gray-700 w-16 text-center">
+          {zoomLevel.toFixed(1)}x
+        </div>
       </div>
     </div>
   );
@@ -259,10 +300,11 @@ function MobileAvatar({
   compression: number;
 }) {
   const { removeAvatar, setSelectedAvatar, setSelectedScreen } = useGlobals();
+  const { zoomLevel } = useGlobals();
 
   const height = Number(avatar.height);
   const ftIn = cmToFtAndInch(height);
-  const visualHeight = ((height / boardHeight) * 100) * compression;
+  const visualHeight = ((height / boardHeight) * 100) * compression * zoomLevel;
 
   return (
     <motion.div

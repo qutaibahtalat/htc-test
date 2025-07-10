@@ -27,6 +27,8 @@ interface GlobalContextType {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  zoomLevel: number;
+  setZoomLevel: (zoomLevel: number) => void;
 }
 
 const GlobalContext = createContext<GlobalContextType>({
@@ -48,6 +50,8 @@ const GlobalContext = createContext<GlobalContextType>({
   redo: () => {},
   canUndo: false,
   canRedo: false,
+  zoomLevel: 1,
+  setZoomLevel: () => {},
 });
 
 // Provider for the global context
@@ -66,6 +70,7 @@ export const GlobalContextProvider = ({
     canUndo,
     canRedo,
   } = useHistoryState<Avatar[]>([]);
+  const [zoomLevel, setZoomLevel] = useState(1);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -140,6 +145,8 @@ export const GlobalContextProvider = ({
         redo,
         canUndo,
         canRedo,
+        zoomLevel,
+        setZoomLevel,
       }}
     >
       {children}

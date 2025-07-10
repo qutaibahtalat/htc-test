@@ -22,6 +22,8 @@ const BoardUtilities = () => {
     canRedo,
     setAvatars,
     setSelectedScreen,
+    zoomLevel,
+    setZoomLevel,
   } = useGlobals();
   const [shareLink, setShareLink] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,7 +70,7 @@ const BoardUtilities = () => {
   return (
     <>
       <div className="flex justify-between flex-wrap items-center z-20 relative">
-        <div className="flex gap-1 items-center">
+        <div className="flex gap-2 items-center">
           <LuUndo2
             size={40}
             className={`bg-white rounded-xl p-2 border border-gray-200 cursor-pointer ${
@@ -83,7 +85,39 @@ const BoardUtilities = () => {
             }`}
             onClick={redo}
           />
+          {/* Desktop Zoom Bar */}
+          <div className="hidden md:flex items-center gap-2 ml-4">
+            <button
+              onClick={() => setZoomLevel(Math.max(0.5, zoomLevel - 0.1))}
+              className="p-1 w-8 h-8 rounded-full bg-[#ff832d] text-white hover:bg-[#e67325]"
+              aria-label="Zoom out"
+            >
+              -
+            </button>
+            <div className="w-24 mx-1">
+              <input
+                type="range"
+                min="0.5"
+                max="3"
+                step="0.1"
+                value={zoomLevel}
+                onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#ff832d]"
+              />
+            </div>
+            <button
+              onClick={() => setZoomLevel(Math.min(3, zoomLevel + 0.1))}
+              className="p-1 w-8 h-8 rounded-full bg-[#ff832d] text-white hover:bg-[#e67325]"
+              aria-label="Zoom in"
+            >
+              +
+            </button>
+            <span className="text-sm font-medium text-gray-700 w-10 text-center">
+              {zoomLevel.toFixed(1)}x
+            </span>
+          </div>
         </div>
+
         <div className="flex items-center gap-1">
           <Button
             className="bg-white !text-black border border-gray-200 flex items-center gap-2 p-2 text-sm"
