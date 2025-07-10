@@ -92,7 +92,7 @@ const BoardUtilities = () => {
               className="p-1 w-8 h-8 rounded-full bg-[#ff832d] text-white hover:bg-[#e67325]"
               aria-label="Zoom out"
             >
-              -
+              +
             </button>
             <div className="w-24 mx-1">
               <input
@@ -110,7 +110,7 @@ const BoardUtilities = () => {
               className="p-1 w-8 h-8 rounded-full bg-[#ff832d] text-white hover:bg-[#e67325]"
               aria-label="Zoom in"
             >
-              +
+              -
             </button>
             <span className="text-sm font-medium text-gray-700 w-10 text-center">
               {zoomLevel.toFixed(1)}x

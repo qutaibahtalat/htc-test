@@ -253,12 +253,12 @@ const Avatar = ({
 
       {/* Mobile Zoom Controls */}
       <div className="md:hidden flex items-center justify-center gap-4 mt-4 p-2 bg-white rounded-lg shadow-sm border border-gray-200">
-        <button 
-          onClick={onZoomOut}
+        <button
+          onClick={() => setZoomLevel(Math.max(0.5, zoomLevel - 0.1))}
           className="p-2 rounded-md bg-[#ff832d] text-white hover:bg-[#e67325]"
           aria-label="Zoom out"
         >
-          -
+          +
         </button>
         
         <div className="flex-1">
@@ -273,12 +273,12 @@ const Avatar = ({
           />
         </div>
         
-        <button 
-          onClick={onZoomIn}
+        <button
+          onClick={() => setZoomLevel(Math.min(3, zoomLevel + 0.1))}
           className="p-2 rounded-md bg-[#ff832d] text-white hover:bg-[#e67325]"
           aria-label="Zoom in"
         >
-          +
+          -
         </button>
         
         <div className="text-sm font-medium text-gray-700 w-16 text-center">
