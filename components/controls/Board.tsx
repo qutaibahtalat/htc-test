@@ -258,7 +258,7 @@ const Avatar = ({
           className="p-2 rounded-md bg-[#ff832d] text-white hover:bg-[#e67325]"
           aria-label="Zoom out"
         >
-          -
+          +
         </button>
         
         <div className="flex-1">
@@ -278,7 +278,7 @@ const Avatar = ({
           className="p-2 rounded-md bg-[#ff832d] text-white hover:bg-[#e67325]"
           aria-label="Zoom in"
         >
-          +
+          -
         </button>
         
         <div className="text-sm font-medium text-gray-700 w-16 text-center">
